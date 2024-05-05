@@ -42,7 +42,18 @@ defmodule ScaleGenerator do
   """
   @spec chromatic_scale(tonic :: String.t()) :: list(String.t())
   def chromatic_scale(tonic \\ "C") do
+    ch_scale = ~w(A A# B C C# D D# E F F# G G#)
+    tonic_idx = Enum.find_index(ch_scale, &(&1 == String.upcase(tonic))) - 1
+
+    if(tonic_idx == -1) do
+      Enum.concat(ch_scale, ["A"])
+    else
+      a = Enum.slide(ch_scale, 0..tonic_idx,-1)
+      a ++ [Enum.at(a, 0)]
+    end
   end
+
+
 
   @doc """
   Sharp notes can also be considered the flat (b) note of the tone above them,
