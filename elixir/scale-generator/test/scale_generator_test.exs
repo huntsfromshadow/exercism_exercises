@@ -55,22 +55,22 @@ defmodule ScaleGeneratorTest do
   end
 
   describe "generate flat chromatic scale" do
-    @tag :pending
+    #@tag :pending
     test "starting with A" do
       assert ScaleGenerator.flat_chromatic_scale("A") == ~w(A Bb B C Db D Eb E F Gb G Ab A)
     end
 
-    @tag :pending
+    #@tag :pending
     test "starting with C" do
       assert ScaleGenerator.flat_chromatic_scale("C") == ~w(C Db D Eb E F Gb G Ab A Bb B C)
     end
 
-    @tag :pending
+    #@tag :pending
     test "starting with G" do
       assert ScaleGenerator.flat_chromatic_scale("G") == ~w(G Ab A Bb B C Db D Eb E F Gb G)
     end
 
-    @tag :pending
+    #@tag :pending
     test "works with with lowercase notes" do
       assert ScaleGenerator.flat_chromatic_scale("Gb") == ~w(Gb G Ab A Bb B C Db D Eb E F Gb)
     end

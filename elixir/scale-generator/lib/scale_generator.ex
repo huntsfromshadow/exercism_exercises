@@ -69,6 +69,15 @@ defmodule ScaleGenerator do
   """
   @spec flat_chromatic_scale(tonic :: String.t()) :: list(String.t())
   def flat_chromatic_scale(tonic \\ "C") do
+    fl_ch_scale = ~w(A Bb B C Db D Eb E F Gb G Ab)
+    tonic_idx = Enum.find_index(fl_ch_scale, &(String.upcase(&1) == String.upcase(tonic))) - 1
+
+    if(tonic_idx == -1) do
+      Enum.concat(fl_ch_scale, ["A"])
+    else
+      a = Enum.slide(fl_ch_scale, 0..tonic_idx,-1)
+      a ++ [Enum.at(a, 0)]
+    end
   end
 
   @doc """
