@@ -1,9 +1,4 @@
 defmodule ScaleGenerator do
-
-  def step_tonic_idx("m"), do: 2
-  def step_tonic_idx("M"), do: 3
-  def step_tonic_idx("A"), do: 4
-
   @doc """
   Find the note for a given interval (`step`) in a `scale` after the `tonic`.
 
@@ -18,12 +13,20 @@ defmodule ScaleGenerator do
   "M": E
   "A": F
   """
+
+  @notes_sharps ~w(A A# B C C# D D# E F F# G G# A A# B C C# D D# E F F# G G#)
+  @notes_flats ~w(A Bb B C Db D Eb E F Gb G Ab A Bb B C Db D Eb E F Gb G Ab A)
+
   @spec step(scale :: list(String.t()), tonic :: String.t(), step :: String.t()) :: String.t()
   def step(scale, tonic, step) do
-    tonic_idx = Enum.find_index(scale, &(&1 == tonic))
-    step_idx = step_tonic_idx(step)
-    Enum.slice(scale, tonic_idx, step_idx)
-    |> Enum.at(step_idx - 1)
+    tonic = String.capitalize(tonic)
+    index = case step do
+      "m" -> 1
+      "M" -> 2
+      "A" -> 3
+    end
+    start = Enum.find_index(scale, &(tonic == &1))
+    Enum.at(scale, start + index)
   end
 
   @doc """
@@ -42,18 +45,10 @@ defmodule ScaleGenerator do
   """
   @spec chromatic_scale(tonic :: String.t()) :: list(String.t())
   def chromatic_scale(tonic \\ "C") do
-    ch_scale = ~w(A A# B C C# D D# E F F# G G#)
-    tonic_idx = Enum.find_index(ch_scale, &(&1 == String.upcase(tonic))) - 1
-
-    if(tonic_idx == -1) do
-      Enum.concat(ch_scale, ["A"])
-    else
-      a = Enum.slide(ch_scale, 0..tonic_idx,-1)
-      a ++ [Enum.at(a, 0)]
-    end
+    tonic = String.capitalize(tonic)
+    start = Enum.find_index(@notes_sharps, &(&1 == tonic))
+    Enum.slice(@notes_sharps, start, 13)
   end
-
-
 
   @doc """
   Sharp notes can also be considered the flat (b) note of the tone above them,
@@ -69,15 +64,9 @@ defmodule ScaleGenerator do
   """
   @spec flat_chromatic_scale(tonic :: String.t()) :: list(String.t())
   def flat_chromatic_scale(tonic \\ "C") do
-    fl_ch_scale = ~w(A Bb B C Db D Eb E F Gb G Ab)
-    tonic_idx = Enum.find_index(fl_ch_scale, &(String.upcase(&1) == String.upcase(tonic))) - 1
-
-    if(tonic_idx == -1) do
-      Enum.concat(fl_ch_scale, ["A"])
-    else
-      a = Enum.slide(fl_ch_scale, 0..tonic_idx,-1)
-      a ++ [Enum.at(a, 0)]
-    end
+    tonic = String.capitalize(tonic)
+    start = Enum.find_index(@notes_flats, &(&1 == tonic))
+    Enum.slice(@notes_flats, start, 13)
   end
 
   @doc """
@@ -92,6 +81,18 @@ defmodule ScaleGenerator do
   """
   @spec find_chromatic_scale(tonic :: String.t()) :: list(String.t())
   def find_chromatic_scale(tonic) do
+      notes = pick_scale(tonic)
+      tonic = String.capitalize(tonic)
+      start = Enum.find_index(notes, &(&1 == tonic))
+      Enum.slice(notes, start, 13)
+  end
+
+  defp pick_scale(tonic) do
+    if Enum.member?(~w(F Bb Eb Ab Db Gb d g c f bb eb), tonic) do
+      @notes_flats
+    else
+      @notes_sharps
+    end
   end
 
   @doc """
@@ -107,5 +108,10 @@ defmodule ScaleGenerator do
   """
   @spec scale(tonic :: String.t(), pattern :: String.t()) :: list(String.t())
   def scale(tonic, pattern) do
+    notes = pick_scale(tonic)
+    [String.capitalize(tonic) | pattern
+      |> String.graphemes
+      |> Enum.scan(tonic, fn (p_step, n) -> step(notes, n, p_step) end)
+    ]
   end
 end
